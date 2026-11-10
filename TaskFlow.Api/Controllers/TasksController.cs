@@ -20,9 +20,10 @@ public class TasksController : ControllerBase
 
 
     [HttpGet]
-    public async Task<ActionResult<List<TaskResponse>>> GetAll()
+    public async Task<ActionResult<List<TaskResponse>>> GetAll([FromQuery] TaskItemStatus? status, [FromQuery] string? search, [FromQuery] string? sort)
     {
-        var tasks = await _taskService.GetAllAsync();
+        
+        var tasks = await _taskService.GetAllAsync(status, search, sort);
 
         var response = tasks.Select(t => new TaskResponse
         {

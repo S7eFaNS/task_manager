@@ -13,9 +13,29 @@ public class TaskRepository : ITaskRepository
         _db = db;
     }
 
-    public async Task<List<TaskItem>> GetAllAsync()
+    public async Task<List<TaskItem>> GetAllAsync(TaskItemStatus? status, string? search, string? sort)
     {
-        return await _db.Tasks.ToListAsync();
+        IQueryable<TaskItem> query = _db.Tasks;
+
+        if (status.HasValue)
+        {
+            query = query.Where(t => t.Status == status.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(t => t.Title.Contains(search) ||
+            (t.Description != null && t.Description.Contains(search)));
+        }
+
+        query = sort switch
+        {
+            "createdAsc" => query.OrderBy(t => t.CreatedAt),
+            "createdDesc" => query.OrderByDescending(t => t.CreatedAt),
+            _ => query
+        };
+
+        return await query.ToListAsync();
     }
 
     public async Task<TaskItem?> FindByIdAsync(int id)
@@ -65,4 +85,5 @@ public class TaskRepository : ITaskRepository
 
         return true;
     }
+
 }

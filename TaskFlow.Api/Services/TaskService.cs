@@ -12,9 +12,9 @@ public class TaskService : ITaskService
         _repository = repository;
     }
 
-    public async Task<List<TaskItem>> GetAllAsync()
+    public async Task<List<TaskItem>> GetAllAsync(TaskItemStatus? status, string? search, string? sort)
     {
-        return await _repository.GetAllAsync();
+        return await _repository.GetAllAsync(status, search, sort);
     }
 
     public async Task<TaskItem?> FindByIdAsync(int id)
@@ -36,5 +36,4 @@ public class TaskService : ITaskService
     {
         return await _repository.UpdateAsync(id, updated);
     }
-
 }

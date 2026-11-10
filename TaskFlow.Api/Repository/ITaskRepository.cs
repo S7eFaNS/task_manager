@@ -4,7 +4,7 @@ namespace TaskFlow.Api.Repositories;
 
 public interface ITaskRepository
 {
-    Task<List<TaskItem>> GetAllAsync();
+    Task<List<TaskItem>> GetAllAsync(TaskItemStatus? status, string? search, string? sort);
 
     Task<TaskItem?> FindByIdAsync(int id);
 
@@ -13,4 +13,5 @@ public interface ITaskRepository
     Task<bool> DeleteAsync(int id);
 
     Task<bool> UpdateAsync(int id, TaskItem updated);
+
 }
