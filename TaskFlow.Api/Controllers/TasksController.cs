@@ -17,15 +17,15 @@ public class TasksController : ControllerBase
 
 
     [HttpGet]
-    public ActionResult<List<TaskItem>> GetAll()
+    public async Task<ActionResult<List<TaskItem>>> GetAll()
     {
-        return _taskService.GetAll();
+        return await _taskService.GetAllAsync();
     }
 
     [HttpGet("{id:int}")]
-    public ActionResult<TaskItem> GetById(int id)
+    public async Task<ActionResult<TaskItem>> GetById(int id)
     {
-        var task = _taskService.FindItemById(id);
+        var task = await _taskService.FindByIdAsync(id);
         if(task is null)
         {
             return NotFound();
@@ -34,16 +34,16 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<TaskItem> CreateTask(TaskItem taskItem)
+    public async Task<ActionResult<TaskItem>> CreateTask(TaskItem taskItem)
     {
-        var created = _taskService.CreateItem(taskItem);
+        var created = await _taskService.CreateAsync(taskItem);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpDelete("{id:int}")]
-    public ActionResult DeleteTaskById(int id)
+    public async Task<ActionResult> DeleteTaskById(int id)
     {
-        if (!_taskService.DeleteItemById(id))
+        if (!await _taskService.DeleteAsync(id))
         {
             return NotFound();
         }
@@ -52,9 +52,9 @@ public class TasksController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult EditTaskById(int id, TaskItem updated)
+    public async Task<ActionResult> EditTaskById(int id, TaskItem updated)
     {
-        if (!_taskService.UpdateItemById(id, updated))
+        if (!await _taskService.UpdateAsync(id, updated))
         {
             return NotFound();
         }

@@ -1,39 +1,40 @@
 using TaskFlow.Api.Entities;
+using TaskFlow.Api.Repositories;
 
 namespace TaskFlow.Api.Services;
 
 public class TaskService : ITaskService
 {
-    private readonly InMemoryTaskStore _store;
+    private readonly ITaskRepository _repository;
 
-    public TaskService(InMemoryTaskStore store)
+    public TaskService(ITaskRepository repository)
     {
-        _store = store;
+        _repository = repository;
     }
 
-    public TaskItem CreateItem(TaskItem task)
+    public async Task<List<TaskItem>> GetAllAsync()
     {
-        return _store.Add(task);
+        return await _repository.GetAllAsync();
     }
 
-    public bool DeleteItemById(int id)
+    public async Task<TaskItem?> FindByIdAsync(int id)
     {
-        return _store.Delete(id);
+        return await _repository.FindByIdAsync(id);
     }
 
-    public TaskItem? FindItemById(int id)
+    public async Task<TaskItem> CreateAsync(TaskItem task)
     {
-        return _store.Find(id);
+        return await _repository.CreateAsync(task);
     }
 
-    public List<TaskItem> GetAll()
+    public async Task<bool> DeleteAsync(int id)
     {
-        return _store.GetAll();
+        return await _repository.DeleteAsync(id);
     }
 
-    public bool UpdateItemById(int id, TaskItem updated)
+    public async Task<bool> UpdateAsync(int id, TaskItem updated)
     {
-        return _store.Update(id, updated);
+        return await _repository.UpdateAsync(id, updated);
     }
 
 }
