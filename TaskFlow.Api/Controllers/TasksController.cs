@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TaskFlow.Api.DTOs;
 using TaskFlow.Api.Entities;
 using TaskFlow.Api.Services;
 
@@ -16,29 +17,79 @@ public class TasksController : ControllerBase
     }
 
 
+
+
     [HttpGet]
-    public async Task<ActionResult<List<TaskItem>>> GetAll()
+    public async Task<ActionResult<List<TaskResponse>>> GetAll()
     {
-        return await _taskService.GetAllAsync();
+        var tasks = await _taskService.GetAllAsync();
+
+        var response = tasks.Select(t => new TaskResponse
+        {
+            Id = t.Id,
+            Title = t.Title,
+            Description = t.Description,
+            Status = t.Status,
+            DueDate = t.DueDate,
+            CreatedAt = t.CreatedAt
+        }).ToList();
+
+        return Ok(response);
     }
 
+
+
+
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<TaskItem>> GetById(int id)
+    public async Task<ActionResult<TaskResponse>> GetById(int id)
     {
         var task = await _taskService.FindByIdAsync(id);
         if(task is null)
         {
             return NotFound();
         }
-        return task;
+
+        return Ok(new TaskItem
+        {
+            Id = task.Id,
+            Title = task.Title,
+            Description = task.Description,
+            Status = task.Status,
+            DueDate = task.DueDate,
+            CreatedAt = task.CreatedAt
+        });
     }
 
+
+
+
     [HttpPost]
-    public async Task<ActionResult<TaskItem>> CreateTask(TaskItem taskItem)
+    public async Task<ActionResult<TaskResponse>> CreateTask(CreateTaskRequest taskItem)
     {
-        var created = await _taskService.CreateAsync(taskItem);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        var task = new TaskItem
+        {
+            Title = taskItem.Title,
+            Description = taskItem.Description,
+            DueDate = taskItem.DueDate
+        };
+
+        var created = await _taskService.CreateAsync(task);
+
+        var response = new TaskResponse
+        {
+            Id = created.Id,
+            Title = created.Title,
+            Description = created.Description,
+            Status = created.Status,
+            DueDate = created.DueDate,
+            CreatedAt = created.CreatedAt
+        };
+
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
+
+
+
 
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteTaskById(int id)
@@ -51,10 +102,21 @@ public class TasksController : ControllerBase
         return NoContent();
     }
 
+
+
+
     [HttpPut("{id:int}")]
-    public async Task<ActionResult> EditTaskById(int id, TaskItem updated)
+    public async Task<ActionResult> EditTaskById(int id, UpdateTaskRequest updated)
     {
-        if (!await _taskService.UpdateAsync(id, updated))
+        var task = new TaskItem
+        {
+            Title = updated.Title,
+            Description = updated.Description,
+            Status = updated.Status,
+            DueDate = updated.DueDate
+        };
+
+        if (!await _taskService.UpdateAsync(id, task))
         {
             return NotFound();
         }
